@@ -105,7 +105,7 @@ app.get('/offers/:id', async c => {
     .toArray()
 
   const related = relatedDocs.map(o => o._id.toString())
-  ;(offer as any).relatedOffers = related
+    ; (offer as any).relatedOffers = related
 
   // mise en cache 5 min
   await redis.set(
@@ -161,6 +161,71 @@ app.post('/login', async c => {
 })
 
 
-serve({ fetch: app.fetch, port: 3000 }, (info) =>
+app.get('/offers/:id', async c => {
+  const t0 = Date.now()
+  const id = c.req.param('id')
+  if (!ObjectId.isValid(id)) return c.json({ error: 'invalid id' }, 400)
+
+  const cacheKey = `offers:${id}`
+  const cached = await redis.get(commandOptions({ returnBuffers: true }), cacheKey)
+  if (cached) {
+    console.log(`[GET /offers/${id}] hit ${Date.now() - t0}ms`)
+    return c.json(JSON.parse(gunzipSync(cached).toString()))
+  }
+
+  const offer = await offers.findOne({ _id: new ObjectId(id) })
+  if (!offer) return c.json({ error: 'not found' }, 404)
+
+  const session = neo.session({ defaultAccessMode: neo4j.session.READ })
+  const near = await session.run(
+    `MATCH (c:City {code:$code})- [r:NEAR]-> (n:City)
+     RETURN n.code AS city
+     ORDER BY r.weight DESC
+     LIMIT 3`,
+    { code: offer.to }
+  )
+  await session.close()
+  const nearCodes = near.records.map(r => r.get('city'))
+
+  const related = await offers
+    .find({ from: offer.from, to: { $in: nearCodes } }, { projection: { _id: 1 } })
+    .limit(3)
+    .toArray()
+
+  const full = { ...offer, relatedOffers: related.map(o => o._id.toString()) }
+  await redis.set(cacheKey, gzipSync(Buffer.from(JSON.stringify(full))), { EX: 300 })
+  console.log(`[GET /offers/${id}] miss ${Date.now() - t0}ms`)
+  return c.json(full)
+})
+
+app.post('/offers', async c => {
+  let body
+  try {
+    body = await c.req.json()
+  } catch {
+    return c.json({ error: 'body must be valid JSON' }, 400)
+  }
+
+  const { from, to, price, currency, provider, ...rest } = body
+  const required = { from, to, price, currency, provider }
+  for (const [k, v] of Object.entries(required)) {
+    if (v === undefined || v === null || v === '') {
+      return c.json({ error: `${k} required` }, 400)
+    }
+  }
+
+  const doc = { from, to, price, currency, provider, ...rest }
+  const result = await offers.insertOne(doc)
+  const offerId = result.insertedId.toString()
+
+  await redis.publish('offers:new', JSON.stringify({ offerId, from, to }))
+
+  return c.json({ _id: offerId, ...doc })
+})
+
+
+
+
+serve({ fetch: app.fetch, port: 3000 }, info => {
   console.log(`Server is running on http://localhost:${info.port}`)
-)
+})

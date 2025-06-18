@@ -96,3 +96,61 @@ MATCH (lon:City {code:'LON'}), (ber:City {code:'BER'})
 MERGE (lon)-[:NEAR {weight:0.80}]->(ber);
 ```
 
+
+
+## Questions
+### Question 1
+
+```
+GET http://localhost:3000/offers?from=PAR&to=SFO&limit=3
+```
+### question 2
+```
+GET http://localhost:3000/reco?city=PAR&k=3
+```
+
+### Question 3
+
+```
+POST http://localhost:3000/login
+```
+
+Avec json/raw body
+```json
+{
+  "userId": "name",
+}
+```
+
+### Question 4
+
+```
+GET http://localhost:3000/offers/{id}
+```
+### Question 5
+
+```bash
+docker exec -it $(docker compose ps -q redis) redis-cli SUBSCRIBE offers:new
+```
+
+Pour se connecter à Redis et écouter les messages sur le canal `offers:new`.
+
+```
+POST http://localhost:3000/offers
+```
+
+avec json/raw body
+
+```json
+{
+  "from":"PAR",
+  "to":"SFO",
+  "price":420,
+  "currency":"EUR",
+  "provider":"AirTest",
+  "legs":[]
+}
+```
+
+### Question 6
+
