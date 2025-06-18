@@ -5,6 +5,7 @@ import { createClient, commandOptions } from 'redis'
 import { gzipSync, gunzipSync } from 'zlib'
 import neo4j from 'neo4j-driver'
 import 'dotenv/config'
+import { v4 as uuid } from 'uuid'
 
 const app = new Hono()
 
@@ -90,6 +91,23 @@ app.get('/reco', async c => {
   } finally {
     await session.close()
   }
+})
+
+app.post('/login', async c => {
+  let body: { userId?: string }
+  try {
+    body = await c.req.json()
+  } catch {
+    return c.json({ error: 'body must be valid JSON' }, 400)
+  }
+
+  const userId = body.userId
+  if (!userId) return c.json({ error: 'userId required' }, 400)
+
+  const token = uuid()
+  await redis.set(`session:${token}`, userId, { EX: 900 })
+
+  return c.json({ token, expires_in: 900 })
 })
 
 
