@@ -15,18 +15,20 @@ open http://localhost:3000
 
 ## Add data
 
-### connect to the container
+### MongoDB
+
+#### connect to the container
 ```bash
 docker exec -it 'id_container'  "mongosh
 ```
 
-### create a database
+#### create a database
 
 ```
 use travelhub
 ```
 
-### insert data
+#### insert data
 
 ```javascript 
 
@@ -53,3 +55,44 @@ db.offers.insertMany([
   { from:'BER', to:'PAR', price: 95, currency:'EUR', provider:'EuroFly',legs:[] }
 ])
 db.offers.createIndex({ from: 1, to: 1 })
+```
+### Neo4j
+
+#### connect to the container
+```bash
+docker exec -it 'id_container²' cypher-shell -u neo4j -p supersecret123
+```
+
+#### add constraints unique key
+
+```neo4j
+CREATE CONSTRAINT city_code IF NOT EXISTS
+FOR (c:City) REQUIRE c.code IS UNIQUE;
+```
+
+####  create cities
+
+```neo4j
+UNWIND ['PAR','TYO','NYC','LON','SFO','BER'] AS code
+MERGE (:City {code:code});
+```
+
+#### create relationships
+
+```neo4j
+MATCH (par:City {code:'PAR'}), (tyo:City {code:'TYO'})
+MERGE (par)-[:NEAR {weight:0.60}]->(tyo);
+
+MATCH (par:City {code:'PAR'}), (nyc:City {code:'NYC'})
+MERGE (par)-[:NEAR {weight:0.70}]->(nyc);
+
+MATCH (par:City {code:'PAR'}), (lon:City {code:'LON'})
+MERGE (par)-[:NEAR {weight:0.90}]->(lon);
+
+MATCH (nyc:City {code:'NYC'}), (sfo:City {code:'SFO'})
+MERGE (nyc)-[:NEAR {weight:0.85}]->(sfo);
+
+MATCH (lon:City {code:'LON'}), (ber:City {code:'BER'})
+MERGE (lon)-[:NEAR {weight:0.80}]->(ber);
+```
+
