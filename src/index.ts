@@ -1,6 +1,6 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import { MongoClient } from 'mongodb'
+import { MongoClient, ObjectId } from 'mongodb'
 import { createClient, commandOptions } from 'redis'
 import { gzipSync, gunzipSync } from 'zlib'
 import neo4j from 'neo4j-driver'
@@ -35,7 +35,7 @@ app.get('/offers', async (c) => {
     const to = c.req.query('to')
     const limit = Number(c.req.query('limit') ?? 10)
 
-    if (!from || !to) return c.json({ error: 'from and to required' }, 400)
+    if (!from || !to) return c.json(await offers.find().toArray())
     console.log(to, from, limit);
 
     const key = `offers:${from}:${to}:${limit}`
@@ -45,7 +45,6 @@ app.get('/offers', async (c) => {
       key
     )
     if (cached) {
-      console.log(`[GET /offers] hit ${Date.now() - t0}ms`)
       return c.json(JSON.parse(gunzipSync(cached).toString()))
     }
 
@@ -66,6 +65,57 @@ app.get('/offers', async (c) => {
     console.log(`[GET /offers] error ${Date.now() - t0}ms`)
     return c.json({ error: 'internal error' }, 500)
   }
+})
+
+app.get('/offers/:id', async c => {
+  const t0 = Date.now()
+  const id = c.req.param('id')
+  if (!ObjectId.isValid(id)) return c.json({ error: 'invalid id' }, 400)
+
+  const cacheKey = `offers:${id}`
+  // cache hit
+  const cached = await redis.get(commandOptions({ returnBuffers: true }), cacheKey)
+  if (cached) {
+    console.log(`[GET /offers/${id}] hit ${Date.now() - t0}ms`)
+    return c.json(JSON.parse(gunzipSync(cached).toString()))
+  }
+
+  const offer = await offers.findOne({ _id: new ObjectId(id) })
+  if (!offer) return c.json({ error: 'not found' }, 404)
+
+  const session = neo.session({ defaultAccessMode: neo4j.session.READ })
+  const near = await session.run(
+    `MATCH (c:City {code:$code})- [r:NEAR]-> (n:City)
+     RETURN n.code AS city
+     ORDER BY r.weight DESC
+     LIMIT 3`,
+    { code: offer.to }
+  )
+  await session.close()
+  const nearCodes = near.records.map(r => r.get('city')) as string[]
+
+  // Mongo : offres reliées (même date + ville proche)
+  const relatedDocs = await offers
+    .find({
+      from: offer.from,
+      to: { $in: nearCodes },
+      date: offer.date
+    }, { projection: { _id: 1 } })
+    .limit(3)
+    .toArray()
+
+  const related = relatedDocs.map(o => o._id.toString())
+  ;(offer as any).relatedOffers = related
+
+  // mise en cache 5 min
+  await redis.set(
+    cacheKey,
+    gzipSync(Buffer.from(JSON.stringify(offer))),
+    { EX: 300 }
+  )
+
+  console.log(`[GET /offers/${id}] miss ${Date.now() - t0}ms`)
+  return c.json(offer)
 })
 
 app.get('/reco', async c => {
