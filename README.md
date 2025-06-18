@@ -154,3 +154,8 @@ avec json/raw body
 
 ### Question 6
 
+Résultats observables : nouvelles clés Redis, message Pub/Sub visible, document ajouté dans Mongo, latences réduites sur hits cache
+
+
+### Question 7
+

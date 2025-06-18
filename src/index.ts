@@ -17,6 +17,10 @@ await mongo.connect()
 const db = mongo.db('travelhub')
 const offers = db.collection('offers')
 
+// indexes
+await offers.createIndex({ from: 1, to: 1, price: 1 })
+await offers.createIndex({ provider: 'text' })
+
 // Redis
 const redis = createClient({ url: process.env.REDIS_URL })
 await redis.connect()
@@ -94,28 +98,13 @@ app.get('/offers/:id', async c => {
   await session.close()
   const nearCodes = near.records.map(r => r.get('city')) as string[]
 
-  // Mongo : offres reliées (même date + ville proche)
-  const relatedDocs = await offers
-    .find({
-      from: offer.from,
-      to: { $in: nearCodes },
-      date: offer.date
-    }, { projection: { _id: 1 } })
-    .limit(3)
-    .toArray()
+  const relatedDocs = await offers.find({ from: offer.from, to: { $in: nearCodes }, date: offer.date }, { projection: { _id: 1 } }).limit(3).toArray()
+  const relatedOffers = relatedDocs.map(o => o._id.toString())
+  const full = { ...offer, relatedOffers }
 
-  const related = relatedDocs.map(o => o._id.toString())
-    ; (offer as any).relatedOffers = related
-
-  // mise en cache 5 min
-  await redis.set(
-    cacheKey,
-    gzipSync(Buffer.from(JSON.stringify(offer))),
-    { EX: 300 }
-  )
-
+  await redis.set(cacheKey, gzipSync(Buffer.from(JSON.stringify(full))), { EX: 300 })
   console.log(`[GET /offers/${id}] miss ${Date.now() - t0}ms`)
-  return c.json(offer)
+  return c.json(full)
 })
 
 app.get('/reco', async c => {
@@ -127,16 +116,12 @@ app.get('/reco', async c => {
   try {
     const res = await session.run(
       `MATCH (c:City {code:$city})- [r:NEAR]-> (n:City)
-   RETURN n.code AS city, r.weight AS score
-   ORDER BY score DESC
-   LIMIT $k`,
+       RETURN n.code AS city, r.weight AS score
+       ORDER BY score DESC
+       LIMIT $k`,
       { city, k: neo4j.int(k) }
     )
-
-    const data = res.records.map(r => ({
-      city: r.get('city') as string,
-      score: r.get('score') as number
-    }))
+    const data = res.records.map(r => ({ city: r.get('city') as string, score: r.get('score') as number }))
     return c.json(data)
   } finally {
     await session.close()
@@ -209,9 +194,7 @@ app.post('/offers', async c => {
   const { from, to, price, currency, provider, ...rest } = body
   const required = { from, to, price, currency, provider }
   for (const [k, v] of Object.entries(required)) {
-    if (v === undefined || v === null || v === '') {
-      return c.json({ error: `${k} required` }, 400)
-    }
+    if (v === undefined || v === null || v === '') return c.json({ error: `${k} required` }, 400)
   }
 
   const doc = { from, to, price, currency, provider, ...rest }
@@ -222,9 +205,6 @@ app.post('/offers', async c => {
 
   return c.json({ _id: offerId, ...doc })
 })
-
-
-
 
 serve({ fetch: app.fetch, port: 3000 }, info => {
   console.log(`Server is running on http://localhost:${info.port}`)
