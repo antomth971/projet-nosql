@@ -9,6 +9,19 @@ import { v4 as uuid } from 'uuid'
 
 const app = new Hono()
 
+//add CORS headers
+
+app.use('*', async (c, next) => {
+  const start = Date.now()
+  await next()
+  const dur = Date.now() - start
+  if (!c.res.headers.get('Content-Type')) {
+    c.res.headers.set('Content-Type', 'application/json; charset=utf-8')
+  }
+  c.res.headers.set('X-Response-Time', `${dur}ms`)
+})
+
+
 // MongoDB
 console.log(process.env.MONGO_URI);
 

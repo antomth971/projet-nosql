@@ -1,5 +1,31 @@
 # TravelHub - Flight Search Application
 
+## Sommaire
+
+- [TravelHub - Flight Search Application](#travelhub---flight-search-application)
+  - [Sommaire](#sommaire)
+  - [Démarrage rapide](#démarrage-rapide)
+  - [Add data](#add-data)
+    - [MongoDB](#mongodb)
+      - [connect to the container](#connect-to-the-container)
+      - [create a database](#create-a-database)
+      - [insert data](#insert-data)
+    - [Neo4j](#neo4j)
+      - [connect to the container](#connect-to-the-container-1)
+      - [add constraints unique key](#add-constraints-unique-key)
+      - [create cities](#create-cities)
+      - [create relationships](#create-relationships)
+  - [Questions](#questions)
+    - [Question 1](#question-1)
+    - [question 2](#question-2)
+    - [Question 3](#question-3)
+    - [Question 4](#question-4)
+    - [Question 5](#question-5)
+    - [Question 6](#question-6)
+    - [Question 7](#question-7)
+
+
+
 ## Démarrage rapide
 
 ```
@@ -159,3 +185,10 @@ Résultats observables : nouvelles clés Redis, message Pub/Sub visible, documen
 
 ### Question 7
 
+Ajouter un middleware pour :
+
+- chronométrer chaque requête : il calcule la durée (en ms) entre l’arrivée et la fin du traitement
+
+- écrire la durée dans l’en-tête X-Response-Time
+
+- forcer Content-Type: application/json; charset=utf-8 si la route ne l’a pas déjà mis.
