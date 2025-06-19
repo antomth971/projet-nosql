@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TravelHub - Recherche de Vols</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="header-content">
+          <div class="header-left">
+            <h1>TravelHub ✈️</h1>
+            <p>Plateforme de réservation de voyages</p>
+          </div>
+          <div id="user-info" class="header-right hidden">
+            <span>Connecté : <strong id="current-user"></strong></span>
+            <button id="logout-btn">Déconnexion</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Section de connexion -->
+      <div id="login-section" class="section">
+        <h2>Connexion</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="userId">Nom d'utilisateur :</label>
+            <input type="text" id="userId" required />
+          </div>
+          <button type="submit">Se connecter</button>
+        </form>
+      </div>
+
+      <!-- Layout principal (caché initialement) -->
+      <div id="main-content" class="hidden">
+        <div class="main-layout">
+          <!-- Colonne de gauche : Recherche et Admin -->
+          <div class="search-column">
+            <!-- Recherche de vols -->
+            <div class="section">
+              <h2>Recherche de Vols</h2>
+              <form id="search-form">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="from">Départ :</label>
+                    <select id="from" required>
+                      <option value="">Sélectionner...</option>
+                      <option value="PAR">Paris (PAR)</option>
+                      <option value="NYC">New York (NYC)</option>
+                      <option value="LON">Londres (LON)</option>
+                      <option value="TYO">Tokyo (TYO)</option>
+                      <option value="SFO">San Francisco (SFO)</option>
+                      <option value="BER">Berlin (BER)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="to">Arrivée :</label>
+                    <select id="to" required>
+                      <option value="">Sélectionner...</option>
+                      <option value="PAR">Paris (PAR)</option>
+                      <option value="NYC">New York (NYC)</option>
+                      <option value="LON">Londres (LON)</option>
+                      <option value="TYO">Tokyo (TYO)</option>
+                      <option value="SFO">San Francisco (SFO)</option>
+                      <option value="BER">Berlin (BER)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="limit">Nombre de résultats :</label>
+                  <select id="limit">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                  </select>
+                </div>
+                <button type="submit">Rechercher des vols</button>
+              </form>
+            </div>
+
+            <!-- Recommandations -->
+            <div class="section">
+              <h3>Recommandations</h3>
+              <button id="get-recommendations">Obtenir des recommandations</button>
+              <div id="recommendations-list"></div>
+            </div>
+          </div>
+
+          <!-- Colonne de droite : Résultats -->
+          <div class="results-column">
+            <!-- Résultats de recherche -->
+            <div class="section">
+              <h3>Résultats de recherche</h3>
+              <div id="offers-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts de configuration et utilitaires -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+
+    <!-- Modules métier -->
+    <script src="js/auth.js"></script>
+    <script src="js/offers.js"></script>
+    <script src="js/recommendations.js"></script>
+
+    <!-- Application principale -->
+    <script src="js/app.js"></script>
+  </body>
+</html>

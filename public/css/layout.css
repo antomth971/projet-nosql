@@ -1,0 +1,88 @@
+/* Layout et structures */
+
+header {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: white;
+  border: 1px solid #ddd;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.header-left p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-right span {
+  font-size: 14px;
+  color: #333;
+}
+
+.header-right button {
+  padding: 8px 15px;
+  font-size: 12px;
+  margin: 0;
+}
+
+.section {
+  background-color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+/* Layout en colonnes pour l'affichage compact */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.search-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.results-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 10px;
+  }
+
+  .section {
+    padding: 15px;
+  }
+}
