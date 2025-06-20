@@ -23,7 +23,6 @@
         </div>
       </header>
 
-      <!-- Section de connexion -->
       <div id="login-section" class="section">
         <h2>Connexion</h2>
         <form id="login-form">
@@ -35,12 +34,9 @@
         </form>
       </div>
 
-      <!-- Layout principal (caché initialement) -->
       <div id="main-content" class="hidden">
         <div class="main-layout">
-          <!-- Colonne de gauche : Recherche et Admin -->
           <div class="search-column">
-            <!-- Recherche de vols -->
             <div class="section">
               <h2>Recherche de Vols</h2>
               <form id="search-form">
@@ -83,7 +79,6 @@
               </form>
             </div>
 
-            <!-- Recommandations -->
             <div class="section">
               <h3>Recommandations</h3>
               <button id="get-recommendations">Obtenir des recommandations</button>
@@ -91,9 +86,7 @@
             </div>
           </div>
 
-          <!-- Colonne de droite : Résultats -->
           <div class="results-column">
-            <!-- Résultats de recherche -->
             <div class="section">
               <h3>Résultats de recherche</h3>
               <div id="offers-list"></div>
@@ -103,16 +96,13 @@
       </div>
     </div>
 
-    <!-- Scripts de configuration et utilitaires -->
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
 
-    <!-- Modules métier -->
     <script src="js/auth.js"></script>
     <script src="js/offers.js"></script>
     <script src="js/recommendations.js"></script>
 
-    <!-- Application principale -->
     <script src="js/app.js"></script>
   </body>
 </html>

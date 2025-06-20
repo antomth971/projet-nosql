@@ -1,5 +1,3 @@
-// Module de gestion des offres
-
 class OffersManager {
   constructor() {
     this.initElements();
@@ -99,7 +97,6 @@ class OffersManager {
     try {
       const offer = await apiRequest(`/offers/${offerId}`);
 
-      // Supprimer les anciens détails s'ils existent
       const existingDetails = document.getElementById("offer-details");
       if (existingDetails) {
         existingDetails.remove();
@@ -136,12 +133,10 @@ class OffersManager {
           </button>
         </div>`;
 
-      // Insérer dans la colonne de résultats
       const resultsColumn = document.querySelector(".results-column");
       const resultsSection = resultsColumn.querySelector(".section");
       resultsSection.insertAdjacentHTML("beforeend", detailsHtml);
 
-      // Faire défiler vers les détails
       document.getElementById("offer-details").scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       showMessage(`Erreur lors du chargement des détails: ${error.message}`, "error");

@@ -1,5 +1,3 @@
-/* Styles de base */
-
 * {
   margin: 0;
   padding: 0;
@@ -19,12 +17,10 @@ body {
   padding: 20px;
 }
 
-/* Utilitaires */
 .hidden {
   display: none !important;
 }
 
-/* Messages */
 .message {
   padding: 10px;
   margin-bottom: 15px;

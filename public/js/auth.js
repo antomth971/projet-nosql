@@ -1,5 +1,3 @@
-// Module d'authentification
-
 class AuthManager {
   constructor() {
     this.currentUser = null;
@@ -67,7 +65,7 @@ class AuthManager {
   setUser(user, token) {
     this.currentUser = user;
     this.authToken = token;
-    window.authToken = token; // Pour les utilitaires
+    window.authToken = token;
     this.currentUserSpan.textContent = user;
     saveSession(user, token);
   }

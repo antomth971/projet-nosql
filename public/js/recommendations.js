@@ -1,5 +1,3 @@
-// Module de gestion des recommandations
-
 class RecommendationsManager {
   constructor() {
     this.initElements();
@@ -57,7 +55,6 @@ class RecommendationsManager {
         <div class="score">Score: ${(rec.score * 100).toFixed(0)}%</div>
       `;
 
-      // Permettre de cliquer pour sélectionner comme destination
       card.addEventListener("click", () => {
         document.getElementById("to").value = rec.city;
         showMessage(`Destination "${rec.city}" sélectionnée`, "success");

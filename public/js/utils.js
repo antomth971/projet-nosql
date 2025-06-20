@@ -1,27 +1,17 @@
-// Utilitaires généraux
-
-/**
- * Affiche un message à l'utilisateur
- */
 function showMessage(message, type = "info") {
   const messageDiv = document.createElement("div");
   messageDiv.className = `message ${type}`;
   messageDiv.textContent = message;
 
-  // Insérer au début du container
   const container = document.querySelector(".container");
   const header = container.querySelector("header");
   container.insertBefore(messageDiv, header.nextSibling);
 
-  // Supprimer après 5 secondes
   setTimeout(() => {
     messageDiv.remove();
   }, CONFIG.MESSAGE_DURATION);
 }
 
-/**
- * Affiche un état de chargement sur un bouton
- */
 function showLoading(button) {
   const originalText = button.textContent;
   button.textContent = "Chargement...";
@@ -33,9 +23,6 @@ function showLoading(button) {
   };
 }
 
-/**
- * Effectue une requête API avec gestion d'erreurs
- */
 async function apiRequest(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   const defaultOptions = {
@@ -65,17 +52,11 @@ async function apiRequest(endpoint, options = {}) {
   }
 }
 
-/**
- * Sauvegarde l'état de session
- */
 function saveSession(user, token) {
   localStorage.setItem(CONFIG.CACHE_KEYS.USER, user);
   localStorage.setItem(CONFIG.CACHE_KEYS.TOKEN, token);
 }
 
-/**
- * Restaure l'état de session
- */
 function restoreSession() {
   const savedUser = localStorage.getItem(CONFIG.CACHE_KEYS.USER);
   const savedToken = localStorage.getItem(CONFIG.CACHE_KEYS.TOKEN);
@@ -83,9 +64,6 @@ function restoreSession() {
   return { user: savedUser, token: savedToken };
 }
 
-/**
- * Efface la session
- */
 function clearSession() {
   localStorage.removeItem(CONFIG.CACHE_KEYS.USER);
   localStorage.removeItem(CONFIG.CACHE_KEYS.TOKEN);
